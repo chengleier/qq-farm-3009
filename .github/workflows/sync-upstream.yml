@@ -2,6 +2,7 @@ name: Sync Upstream
 
 on:
   schedule:
+    # 每10分钟检查一次作者仓库
     - cron: "*/10 * * * *"
   workflow_dispatch:
 
@@ -13,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -22,18 +23,32 @@ jobs:
         run: |
           set -e
 
+          # 作者仓库
           git remote add upstream https://github.com/Aoluis1005/QQ-farm-BOT-GO.git || true
+
+          # 作者实际分支是 master
           git fetch upstream master
 
+          # GitHub Actions 提交身份
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # 使用你的 main 分支
           git checkout main
 
+          # 没有更新就结束
           if git merge-base --is-ancestor upstream/master HEAD; then
             echo "Already up to date."
             exit 0
           fi
 
+          echo "New upstream update detected."
+
+          # 同步作者更新
+          # -X ours：发生冲突时优先保留你仓库自己的修改
           git merge upstream/master --no-edit -X ours
+
+          # 推送到你的仓库
           git push origin main
+
+          echo "Upstream sync completed."
