@@ -36,7 +36,7 @@ COPY --from=web-build /web/dist /src/web/dist
 RUN go mod download
 # 注入版本号（覆盖仓库默认 dev），与服务器发布流程一致
 RUN printf 'package main\n\nvar buildVersion = "%s"\nvar buildTime = "%s"\n' "$VERSION" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > version.go
-ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=arm64
 RUN go build -ldflags="-s -w" -o /out/go-farm-bot .
 
 # ---- 运行阶段 ----
