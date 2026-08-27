@@ -20,17 +20,20 @@ jobs:
 
       - name: Sync author repository
         run: |
+          set -e
+
           git remote add upstream https://github.com/Aoluis1005/QQ-farm-BOT-GO.git || true
-          git fetch upstream main
+          git fetch upstream master
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout main
 
-          if git merge-base --is-ancestor upstream/main HEAD; then
+          if git merge-base --is-ancestor upstream/master HEAD; then
             echo "Already up to date."
-          else
-            git merge upstream/main --no-edit
-            git push origin main
+            exit 0
           fi
+
+          git merge upstream/master --no-edit -X ours
+          git push origin main
